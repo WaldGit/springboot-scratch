@@ -17,9 +17,7 @@ public class PeriodicWorker {
 
 	@Scheduled(fixedRateString = "${worker.period}")
 	public void job_1() throws InterruptedException {
-		logger.info("job_1: started: " + new Date());
 		asynchronousWorker.asynchJob();
-		logger.info("job_1: finished: " + new Date());
 	}
 
 	@Scheduled(fixedRateString = "${worker.period}")

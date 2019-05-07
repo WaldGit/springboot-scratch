@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component
-@Scope("prototype")
+@Scope("singleton")
 public class AsynchronousWorker {
 
 	private static final Logger logger = LoggerFactory.getLogger(AsynchronousWorker.class);
