@@ -15,7 +15,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/users")
 @Log4j2
-public class UserController {
+public class UserController extends BaseAppExceptionHandler {
 
     private final Map<String, UserDto> users = new HashMap<>();
 
@@ -31,11 +31,13 @@ public class UserController {
         sb = limit.isPresent() == true ? sb.append("with limit:").append(limit.get() + " ") : sb.append(" with limit null ");
         log.info(sb.toString());
 
-        if (userId.isPresent() && users.containsKey(userId.get())) {
-            return new ResponseEntity<>(users.get(userId.get()), HttpStatus.OK);
+        if (userId.isPresent()) {
+            if (users.containsKey(userId.get()))
+                return new ResponseEntity<>(users.get(userId.get()), HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(users.values(), HttpStatus.OK);
         }
-
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
     }
 
@@ -49,13 +51,30 @@ public class UserController {
         return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 
-    @PutMapping
-    public String updateUser() {
-        return "updateUser called";
+    @PutMapping(path = "/{userId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<Object> updateUser(@PathVariable String userId, @Valid @RequestBody UserDto userDto) {
+
+        if (!users.containsKey(userId))
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        UserDto savedUser = users.get(userId);
+        savedUser.copyFromOther(userDto);
+
+        return new ResponseEntity<>(savedUser, HttpStatus.OK);
     }
 
-    @DeleteMapping
-    public String deleteUser() {
-        return "deleteUser called";
+    @DeleteMapping(path = "/{userId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<Void> deleteUser(@PathVariable String userId) {
+
+        if (!users.containsKey(userId))
+            return ResponseEntity.notFound().build();
+
+        users.remove(userId);
+
+        return ResponseEntity.ok().build();
     }
+
+
 }

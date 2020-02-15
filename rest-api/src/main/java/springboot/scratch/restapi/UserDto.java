@@ -32,4 +32,15 @@ public class UserDto {
     @Size(min = 5, max = 10, message = "Password length must be between 5 and 10 characters")
     private String password;
 
+    public UserDto copyFromOther(UserDto other) {
+
+        this.setFirstName(other.getFirstName());
+        this.setLastName(other.getLastName());
+        this.setEmail(other.getEmail());
+        this.setPassword(other.getPassword());
+
+        return this;
+
+    }
+
 }
